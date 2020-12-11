@@ -2,7 +2,7 @@
   "name": "3dshootergame",
   "version": "1.0.0",
   "description": "a 3d shooter game for the web",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "console.log('bruh');"
   },
@@ -18,5 +18,10 @@
   "bugs": {
     "url": "https://github.com/FradZGenius/3dnodegame/issues"
   },
-  "homepage": "https://github.com/FradZGenius/3dnodegame#readme"
+  "homepage": "https://github.com/FradZGenius/3dnodegame#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.0.4",
+    "socket.io-client": "^3.0.4"
+  }
 }
