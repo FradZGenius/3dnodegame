@@ -1,0 +1,22 @@
+{
+  "name": "3dshootergame",
+  "version": "1.0.0",
+  "description": "a 3d shooter game for the web",
+  "main": "index.js",
+  "scripts": {
+    "test": "console.log('bruh');"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FradZGenius/3dnodegame.git"
+  },
+  "keywords": [
+    "gaming"
+  ],
+  "author": "Fred Davidson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FradZGenius/3dnodegame/issues"
+  },
+  "homepage": "https://github.com/FradZGenius/3dnodegame#readme"
+}
