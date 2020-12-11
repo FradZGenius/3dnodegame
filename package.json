@@ -2,7 +2,7 @@
   "name": "3dshootergame",
   "version": "1.0.0",
   "description": "a 3d shooter game for the web",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
     "test": "console.log('bruh');"
   },

@@ -1,5 +1,20 @@
 <html>
     <head>
-        <script src=”/socket.io/socket.io.js”></script>
+        <script src = "http://cdn.socket.io/socket.io-3.0.3.js"></script>
+        <script>
+            var socket = io();
+
+            var inc = 0;
+
+            setInterval(()=>{
+                socket.emit('bruh',{
+                    message: inc
+                });
+                inc++;
+            }, 1000);
+        </script>
     </head>
+    <body>
+        bruh moment
+    </body>
 </html>
