@@ -1,4 +1,3 @@
-// The three.js scene: the 3D world where you put objects
 const scene = new THREE.Scene();
 const clock = new THREE.Clock();
 const PI = Math.PI;
@@ -20,8 +19,6 @@ const KEYS = {
 	D: 68,
 };
 
-const staticObjects = []
-
 // The camera
 const camera = new THREE.PerspectiveCamera(
 	60,
@@ -41,17 +38,8 @@ const canvas = renderer.domElement;
 // A cube we are going to animate
 
 const speed = 5;
-
-// Add the cube into the scene
-scene.add(ground.mesh);
-scene.add(player.mesh);
 // Make the camera further from the cube so we can see it better
 camera.position.z = 5;
-ground.mesh.position.y = -2.5;
-ground.mesh.position.x = 17.5;
-ground.mesh.position.z = 17.5;
-ground.mesh.rotation.x = RAD(270);
-
 (
 	function () {
 		var script = document.createElement('script');
@@ -63,20 +51,16 @@ ground.mesh.rotation.x = RAD(270);
 				requestAnimationFrame(loop)
 			});
 		};
-		script.src = '//mrdoob.github.io/stats.js/build/stats.min.js';
+		script.src = 'https://mrdoob.github.io/stats.js/build/stats.min.js';
 		document.head.appendChild(script);
 	}
 )()
-
-
-
-genMap();
 
 //collisions testing
 function render(bruh) {
 	var velocity = new THREE.Vector3();
 	const delta = clock.getDelta();
-	var euler = new THREE.Euler(0,0,0,'YXZ');
+	var euler = new THREE.Euler(0, 0, 0,'YXZ');
 	// Render the scene and the camera
 	renderer.render(scene, camera);
 	const lookAt = new THREE.Vector3(camera.matrix.elements[8], 0, camera.matrix.elements[10]);
