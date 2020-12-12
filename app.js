@@ -14,7 +14,7 @@ var io = require('socket.io')(server);
 
 io.on('connection', (socket)=>{
     console.log('a user connected');
-
+    console.log(socket.id)
     socket.on('bruh',(data)=>{
         console.log(data.message);
     });
