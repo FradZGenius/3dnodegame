@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "a 3d shooter game for the web",
   "main": "app.js",
+  "start": "app.js",
   "scripts": {
     "test": "console.log('bruh');"
   },

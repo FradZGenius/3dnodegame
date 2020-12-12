@@ -20,4 +20,8 @@ io.on('connection', (socket)=>{
     });
 });
 
-/un momento bruh
+
+
+
+//un momento bruh
+
