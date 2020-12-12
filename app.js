@@ -6,7 +6,7 @@ app.get('/', (req, res)=>{
     res.sendFile(__dirname + '/client/index.html');
 });
 
-app.use('/client', express.static(__dirname + '/client'));
+app.use(express.static('client'));
 
 server.listen(3000);
 

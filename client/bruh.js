@@ -10,6 +10,7 @@ const RAD = function (deg) {
 const DEG = function (rad) {
 	return rad * 180 / PI;
 }
+//    <link href="style.css" rel="stylesheet" type="text/css" />
 
 var keysDown = {};
 
