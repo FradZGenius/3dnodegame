@@ -1,7 +1,8 @@
 Physijs.scripts.worker = 'js/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
 
-var initScene, render, renderer, scene, camera, box;
+
+var initScene, render, renderer, scene, camera, box, raycaster;
 
 (
 	function () {
@@ -20,6 +21,7 @@ var initScene, render, renderer, scene, camera, box;
 )()
 
 initScene = function() {
+		raycaster = new THREE.Raycaster();
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
@@ -46,7 +48,13 @@ initScene = function() {
     requestAnimationFrame( render );
 };
 
+
+
 render = function() {
+		let camLook = new THREE.Vector3(camera.matrix.elements[8],camera.matrix.elements[9],camera.matrix.elements[10]);
+		let bruh = raycaster.setFromCamera(camLook,camera);
+		console.log(bruh)
+	
     scene.simulate(); // run physics
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
