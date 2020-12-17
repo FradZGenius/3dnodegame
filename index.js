@@ -15,13 +15,13 @@ var io = require('socket.io')(server);
 io.on('connection', (socket)=>{
     console.log('a user connected');
     console.log(socket.id)
-    socket.on('bruh',(data)=>{
-        console.log(data.message);
+    socket.on('debug',(data)=>{
+        console.log(data);
     });
 });
 
-console.log('un momento bruh')
 
+console.log('un momento bruh')
 
 //un momento bruh
 

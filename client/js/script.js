@@ -2,7 +2,11 @@ Physijs.scripts.worker = 'js/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
 
 
-var initScene, render, renderer, scene, camera, box, raycaster;
+var initScene, render, renderer, scene, camera, box, raycaster, canvas;
+
+var mouse = new THREE.Vector2();
+
+var socket = io();
 
 (
 	function () {
@@ -20,12 +24,17 @@ var initScene, render, renderer, scene, camera, box, raycaster;
 	}
 )()
 
+
 initScene = function() {
-		raycaster = new THREE.Raycaster();
+	raycaster = new THREE.Raycaster();
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize( window.innerWidth, window.innerHeight );
+	canvas = renderer.domElement;
     document.body.appendChild( renderer.domElement );
-    
+	canvas.addEventListener('mousemove',function(evnt){
+		mouse = new THREE.Vector2(evnt.offsetX, evnt.offsetY)
+	});
+
     scene = new Physijs.Scene;
     
     camera = new THREE.PerspectiveCamera(
@@ -48,13 +57,20 @@ initScene = function() {
     requestAnimationFrame( render );
 };
 
-
+//leading bounding box that extends in direction
+//of player's velocity, detects collisions
+//raycast from player to collision to see what face
+//take other 2 vectors that are not equal
+//to the normal of the face to 
 
 render = function() {
-		let camLook = new THREE.Vector3(camera.matrix.elements[8],camera.matrix.elements[9],camera.matrix.elements[10]);
-		let bruh = raycaster.setFromCamera(camLook,camera);
-		console.log(bruh)
-	
+	let camLook = new THREE.Vector3(camera.matrix.elements[8],camera.matrix.elements[9],camera.matrix.elements[10]);
+	raycaster.setFromCamera(mouse,camera);
+	if(raycaster.intersectObjects(scene.children)[0]){
+		socket.emit('debug',raycaster.intersectObjects(scene.children))
+		
+	}
+
     scene.simulate(); // run physics
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
