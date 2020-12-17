@@ -63,6 +63,8 @@ initScene = function() {
     );
     scene.add( player );
     
+    player.position.set(0,30,0);
+
     playerBox.setFromObject(player);
 
     //scene.add( playerBox );
@@ -97,13 +99,33 @@ render = function() {
 
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
-    playerVel.add(new THREE.Vector3(0,.001,0))
+
+    playerVel.copy(new THREE.Vector3(0,-.05,0))
+
+    let prevMin = playerBox.min;
     playerBox.min.add(playerVel);
+
+    let prevMax = playerBox.max;
     playerBox.max.add(playerVel);
-    //console.log(playerVel);
+        
     if(playerBox.intersectsBox(groundBox)){
-        console.log('hit');
+        let testCaster = new THREE.Raycaster();
+        //to - from
+        let gbCenter = new THREE.Vector3();
+        groundBox.getCenter(gbCenter);
+
+        testCaster.set(player.position, (gbCenter.sub(player.position).normalize()));
+        //console.log(testCaster.intersectObject(ground)[0].face.normal);
+        let face = testCaster.intersectObject(ground)[0].face;
+        let proj = playerVel.projectOnPlane(face.normal);
+        playerBox.min.copy(prevMin);
+        playerBox.max.copy(prevMax);
+        //console.log(proj);
     }
+    let b = new THREE.Vector3();
+    playerBox.getCenter(b);
+    player.position.copy(b);
+    
 };
 
 window.onload = initScene();
