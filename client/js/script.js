@@ -8,6 +8,15 @@ var mouse = new THREE.Vector2();
 
 var socket = io();
 
+var playerBox = new THREE.Box3();
+
+var playerVel = new THREE.Vector3();
+
+var ground;
+var groundBox = new THREE.Box3();
+
+var player;
+
 (
 	function () {
 		var script = document.createElement('script');
@@ -35,7 +44,7 @@ initScene = function() {
 		mouse = new THREE.Vector2(evnt.offsetX, evnt.offsetY)
 	});
 
-    scene = new Physijs.Scene;
+    scene = new THREE.Scene;
     
     camera = new THREE.PerspectiveCamera(
         35,
@@ -48,13 +57,29 @@ initScene = function() {
     scene.add( camera );
     
     // Box
-    box = new Physijs.BoxMesh(
-        new THREE.CubeGeometry( 5, 5, 5 ),
-        new THREE.MeshBasicMaterial({ color: 0x888888 })
+    player = new THREE.Mesh(
+        new THREE.CubeGeometry( 10, 10, 10 ),
+        new THREE.MeshBasicMaterial({ color: 0xff0000 })
     );
-    scene.add( box );
+    scene.add( player );
     
+    playerBox.setFromObject(player);
+
+    //scene.add( playerBox );
+    ground = new THREE.Mesh(
+        new THREE.BoxGeometry(100,5,100),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+
+    scene.add(ground);
+
+    groundBox.setFromObject(ground);
+
+    //scene.add(groundBox);
+
     requestAnimationFrame( render );
+    const helper = new THREE.Box3Helper( playerBox, 0xffff00 );
+    scene.add( helper );
 };
 
 //leading bounding box that extends in direction
@@ -67,13 +92,18 @@ render = function() {
 	let camLook = new THREE.Vector3(camera.matrix.elements[8],camera.matrix.elements[9],camera.matrix.elements[10]);
 	raycaster.setFromCamera(mouse,camera);
 	if(raycaster.intersectObjects(scene.children)[0]){
-		socket.emit('debug',raycaster.intersectObjects(scene.children))
-		
+		//socket.emit('debug',raycaster.intersectObjects(scene.children))
 	}
 
-    scene.simulate(); // run physics
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
+    playerVel.add(new THREE.Vector3(0,.001,0))
+    playerBox.min.add(playerVel);
+    playerBox.max.add(playerVel);
+    //console.log(playerVel);
+    if(playerBox.intersectsBox(groundBox)){
+        console.log('hit');
+    }
 };
 
 window.onload = initScene();
