@@ -69,7 +69,7 @@ initScene = function() {
 
     //scene.add( playerBox );
     ground = new THREE.Mesh(
-        new THREE.BoxGeometry(100,5,100),
+        new THREE.BoxGeometry(50,5,50),
         new THREE.MeshBasicMaterial({ color: 0xffffff })
     );
 
@@ -100,12 +100,14 @@ render = function() {
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
 
-    playerVel.copy(new THREE.Vector3(0,-.05,0))
+    playerVel.add(new THREE.Vector3(.0005,-.001,0))
 
-    let prevMin = playerBox.min;
+    let prevMin = playerBox.min.clone();
+
+
     playerBox.min.add(playerVel);
 
-    let prevMax = playerBox.max;
+    let prevMax = playerBox.max.clone();
     playerBox.max.add(playerVel);
         
     if(playerBox.intersectsBox(groundBox)){
@@ -118,9 +120,9 @@ render = function() {
         //console.log(testCaster.intersectObject(ground)[0].face.normal);
         let face = testCaster.intersectObject(ground)[0].face;
         let proj = playerVel.projectOnPlane(face.normal);
-        playerBox.min.copy(prevMin);
-        playerBox.max.copy(prevMax);
-        //console.log(proj);
+
+        playerBox.min.copy(prevMin.add(playerVel));
+        playerBox.max.copy(prevMax.add(playerVel));
     }
     let b = new THREE.Vector3();
     playerBox.getCenter(b);
