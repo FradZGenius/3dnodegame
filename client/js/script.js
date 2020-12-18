@@ -15,6 +15,7 @@ var playerVel = new THREE.Vector3();
 var ground;
 var groundBox = new THREE.Box3();
 
+
 var player;
 
 (
@@ -65,6 +66,10 @@ initScene = function() {
     
     player.position.set(0,30,0);
 
+	let bboxTest = new BoundingBox(player);
+
+	//socket.emit('debug',bboxTest.depth)
+	
     playerBox.setFromObject(player);
 
     //scene.add( playerBox );
@@ -76,6 +81,8 @@ initScene = function() {
     scene.add(ground);
 
     groundBox.setFromObject(ground);
+	ground.rotation.set(10,45,0)
+	groundBox.rotation.set(10,45,0)
 
     //scene.add(groundBox);
 
@@ -100,7 +107,7 @@ render = function() {
     renderer.render( scene, camera); // render the scene
     requestAnimationFrame( render );
 
-    playerVel.add(new THREE.Vector3(.0005,-.001,0))
+    playerVel.add(new THREE.Vector3(.00001,-.001,0))
 
     let prevMin = playerBox.min.clone();
 
@@ -109,25 +116,32 @@ render = function() {
 
     let prevMax = playerBox.max.clone();
     playerBox.max.add(playerVel);
-        
-    if(playerBox.intersectsBox(groundBox)){
-        let testCaster = new THREE.Raycaster();
-        //to - from
-        let gbCenter = new THREE.Vector3();
-        groundBox.getCenter(gbCenter);
+	
+	scene.children.forEach((object)=>{
+		//if(player.position.distanceTo(object.position) <= playerVel){
 
-        testCaster.set(player.position, (gbCenter.sub(player.position).normalize()));
-        //console.log(testCaster.intersectObject(ground)[0].face.normal);
-        let face = testCaster.intersectObject(ground)[0].face;
-        let proj = playerVel.projectOnPlane(face.normal);
+		//}
+		if(playerBox.intersectsBox(groundBox)){
+			let testCaster = new THREE.Raycaster();
+			//to - from
+			let gbCenter = new THREE.Vector3();
+			groundBox.getCenter(gbCenter);
+			
+			testCaster.set(player.position, (gbCenter.sub(player.position).normalize()));
+			//console.log(testCaster.intersectObject(ground)[0].face.normal);
+			let face = testCaster.intersectObject(ground)[0].face;
+			let proj = playerVel.projectOnPlane(face.normal);
 
-        playerBox.min.copy(prevMin.add(playerVel));
-        playerBox.max.copy(prevMax.add(playerVel));
-    }
-    let b = new THREE.Vector3();
-    playerBox.getCenter(b);
-    player.position.copy(b);
-    
+			
+		}
+		
+	});
+	playerBox.min.copy(prevMin.add(playerVel));
+	playerBox.max.copy(prevMax.add(playerVel));
+
+	let b = new THREE.Vector3();
+	playerBox.getCenter(b);
+	player.position.copy(b);
 };
 
 window.onload = initScene();
