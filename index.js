@@ -21,6 +21,7 @@ io.on('connection', (socket)=>{
 });
 
 
+
 console.log('un momento bruh')
 
 //un momento bruh

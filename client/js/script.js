@@ -42,52 +42,52 @@ var player;
 
 initScene = function() {
 	raycaster = new THREE.Raycaster();
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize( window.innerWidth, window.innerHeight );
+	
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize( window.innerWidth, window.innerHeight );
 	canvas = renderer.domElement;
-    document.body.appendChild( renderer.domElement );
+  document.body.appendChild( renderer.domElement );
 	canvas.addEventListener('mousemove',function(evnt){
 		mouse = new THREE.Vector2(evnt.offsetX, evnt.offsetY)
 	});
 
-    scene = new THREE.Scene;
-    
-    camera = new THREE.PerspectiveCamera(
-        35,
-        window.innerWidth / window.innerHeight,
-        1,
-        1000
-    );
-    camera.position.set( 60, 50, 60 );
-    camera.lookAt( scene.position );
-    scene.add( camera );
-    
-    // Box
-    player = new THREE.Mesh(
-        new THREE.CubeGeometry( 10, 10, 10 ),
-        new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    );
-    scene.add( player );
-    
-    player.position.set(0,30,0);
+	scene = new THREE.Scene;
+	
+	camera = new THREE.PerspectiveCamera(
+			35,
+			window.innerWidth / window.innerHeight,
+			1,
+			1000
+	);
+	camera.position.set( 60, 50, 60 );
+	camera.lookAt( scene.position );
+	scene.add( camera );
+	
+	// Box
+	player = new THREE.Mesh(
+			new THREE.CubeGeometry( 10, 10, 10 ),
+			new THREE.MeshBasicMaterial({ color: 0xff0000 })
+	);
+	scene.add( player );
+	
+	player.position.set(0,30,0);
 
 	let bboxTest = new BoundingBox(player);
 
 	//socket.emit('debug',bboxTest.depth)
-	
-    playerBox.setFromObject(player);
 
-    //scene.add( playerBox );
-    ground = new THREE.Mesh(
-        new THREE.BoxGeometry(50,5,50),
-        new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
+	playerBox.setFromObject(player);
 
-    scene.add(ground);
+	//scene.add( playerBox );
+	ground = new THREE.Mesh(
+			new THREE.BoxGeometry(50,5,50),
+			new THREE.MeshBasicMaterial({ color: 0xffffff })
+	);
 
-    groundBox.setFromObject(ground);
+	scene.add(ground);
+
+	groundBox.setFromObject(ground);
 	ground.rotation.set(10,45,0)
-	groundBox.rotation.set(10,45,0)
 
     //scene.add(groundBox);
 
