@@ -2,11 +2,13 @@ class BoundingBox{
 	constructor(object){
 		let pos = object.position;
 		let params = object.geometry.parameters;
-
+	
 		this.x = pos.x;
 		this.y = pos.y;
 		this.z = pos.z;
 		
+		//get matrix of mesh to do stuff
+
 		this.width = params.width;
 		this.height = params.height;
 		this.depth = params.depth;

@@ -15,6 +15,11 @@ var playerVel = new THREE.Vector3();
 var ground;
 var groundBox = new THREE.Box3();
 
+let testV = new THREE.Vector3(10,5,5);
+let testAxis = new THREE.Vector3(.707,.707,0);
+
+alert(testV.projectOnVector(testAxis).constructor.name);
+
 
 var player;
 
