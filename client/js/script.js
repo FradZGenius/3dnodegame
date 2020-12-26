@@ -18,7 +18,6 @@ var groundBox = new THREE.Box3();
 let testV = new THREE.Vector3(10,5,5);
 let testAxis = new THREE.Vector3(.707,.707,0);
 
-alert(testV.projectOnVector(testAxis).constructor.name);
 
 
 var player;
@@ -39,6 +38,7 @@ var player;
 	}
 )()
 
+var bboxTest;
 
 initScene = function() {
 	raycaster = new THREE.Raycaster();
@@ -59,20 +59,20 @@ initScene = function() {
 			1,
 			1000
 	);
-	camera.position.set( 60, 50, 60 );
+	camera.position.set( -100, 0, 0 );
 	camera.lookAt( scene.position );
 	scene.add( camera );
 	
 	// Box
 	player = new THREE.Mesh(
-			new THREE.CubeGeometry( 10, 10, 10 ),
+			new THREE.BoxBufferGeometry( 10, 10, 10 ),
 			new THREE.MeshBasicMaterial({ color: 0xff0000 })
 	);
 	scene.add( player );
 	
-	player.position.set(0,30,0);
+	player.position.set(0,60,0);
 
-	let bboxTest = new BoundingBox(player);
+	bboxTest = new BoundingBox(player);
 
 	//socket.emit('debug',bboxTest.depth)
 
@@ -80,14 +80,17 @@ initScene = function() {
 
 	//scene.add( playerBox );
 	ground = new THREE.Mesh(
-			new THREE.BoxGeometry(50,5,50),
+			new THREE.BoxBufferGeometry(50,5,50),
 			new THREE.MeshBasicMaterial({ color: 0xffffff })
 	);
-
+	ground.name = "bruh";
 	scene.add(ground);
 
 	groundBox.setFromObject(ground);
-	ground.rotation.set(10,45,0)
+	ground.position.set(0,0,0)
+	ground.rotation.set(0,0,10)
+	
+	console.log()
 
     //scene.add(groundBox);
 
@@ -103,46 +106,62 @@ initScene = function() {
 //to the normal of the face to 
 
 render = function() {
+	//camera.lookAt( player.position );
 	let camLook = new THREE.Vector3(camera.matrix.elements[8],camera.matrix.elements[9],camera.matrix.elements[10]);
 	raycaster.setFromCamera(mouse,camera);
 	if(raycaster.intersectObjects(scene.children)[0]){
 		//socket.emit('debug',raycaster.intersectObjects(scene.children))
 	}
 
-    renderer.render( scene, camera); // render the scene
-    requestAnimationFrame( render );
+	renderer.render( scene, camera); // render the scene
+	requestAnimationFrame( render );
 
-    playerVel.add(new THREE.Vector3(.00001,-.001,0))
+	playerVel.add(new THREE.Vector3(0,-.001,-.00001))
 
-    let prevMin = playerBox.min.clone();
+	let prevMin = playerBox.min.clone();
+	bboxTest.updateValues();
 
 
-    playerBox.min.add(playerVel);
+	playerBox.min.add(playerVel);
 
-    let prevMax = playerBox.max.clone();
-    playerBox.max.add(playerVel);
-	
+	let prevMax = playerBox.max.clone();
+	playerBox.max.add(playerVel);
+
+	let prevPos = bboxTest.position;
+	bboxTest.position.add(playerVel);
+	bboxTest.intersectsBox(ground);
+	//ground.
 	scene.children.forEach((object)=>{
 		//if(player.position.distanceTo(object.position) <= playerVel){
 
 		//}
-		if(playerBox.intersectsBox(groundBox)){
+		
+		if(bboxTest.intersectsBox(ground)){
 			let testCaster = new THREE.Raycaster();
 			//to - from
 			let gbCenter = new THREE.Vector3();
 			groundBox.getCenter(gbCenter);
-			
+
 			testCaster.set(player.position, (gbCenter.sub(player.position).normalize()));
 			//console.log(testCaster.intersectObject(ground)[0].face.normal);
-			let face = testCaster.intersectObject(ground)[0].face;
-			let proj = playerVel.projectOnPlane(face.normal);
+			let intersect = testCaster.intersectObject(ground)[0];
+			let face = intersect.face;
+			console.log(intersect)
 
+			let faceNorm = face.normal;
+			faceNorm.transformDirection(ground.matrixWorld);
+			let proj = playerVel.clone().projectOnPlane(faceNorm);
+
+			//console.log(face);
+			playerVel.copy(proj);
 			
 		}
 		
 	});
 	playerBox.min.copy(prevMin.add(playerVel));
 	playerBox.max.copy(prevMax.add(playerVel));
+
+	bboxTest.position.copy(prevPos.add(playerVel));
 
 	let b = new THREE.Vector3();
 	playerBox.getCenter(b);
