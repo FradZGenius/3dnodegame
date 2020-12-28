@@ -59,9 +59,7 @@ class BoundingBox{
 		let axes = 0;
 
 		for(let i = 0; i < 15; i++){
-
 			//loop runs 15 times, only need to make it pick which axis to check collisions on
-
 			if(i < 6){
 				l = unit[i].clone();
 			}else{
@@ -74,17 +72,10 @@ class BoundingBox{
 				l = new THREE.Vector3();
 				l.crossVectors(a,b);
 			}
-			
-			//console.log(t.dot(l));
-			//console.log(t, "gaming")
-			//l = this.up;
-			//console.log((this.right.clone().multiplyScalar(this.width/2).dot(l)) + (this.up.clone().multiplyScalar(this.height/2).dot(l)) + (this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 
-			//(bx.clone().multiplyScalar(bw).dot(l)) + (by.clone().multiplyScalar(bh).dot(l)) + (bz.clone().multiplyScalar(bd).dot(l)))
+
 			if(abs(t.dot(l)) > abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 
 			abs(bx.clone().multiplyScalar(bw).dot(l)) + abs(by.clone().multiplyScalar(bh).dot(l)) + abs(bz.clone().multiplyScalar(bd).dot(l)))
 			{
-				// + abs(by.clone().multiplyScalar(bh).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l))
-				//console.log('gap',t.dot(l),by);
 				return false;	
 			}
 			
