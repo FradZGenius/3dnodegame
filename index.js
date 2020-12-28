@@ -19,7 +19,3 @@ io.on('connection', (socket)=>{
         console.log(data);
     });
 });
-
-
-
-console.log('un momento bruh')
