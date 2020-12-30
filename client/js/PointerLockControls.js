@@ -2,6 +2,11 @@ var Euler = THREE.Euler;
 var EventDispatcher = THREE.EventDispatcher;
 var Vector3 = THREE.Vector3;
 
+function rad(degrees)
+{
+  var pi = Math.PI;
+  return degrees * (pi/180);
+}
 var PointerLockControls = function ( camera, domElement ) {
 
 	if ( domElement === undefined ) {
@@ -16,8 +21,8 @@ var PointerLockControls = function ( camera, domElement ) {
 
 	// Set to constrain the pitch of the camera
 	// Range is 0 to Math.PI radians
-	this.minPolarAngle = 0; // radians
-	this.maxPolarAngle = Math.PI; // radians
+	this.minPolarAngle = rad(10); // radians
+	this.maxPolarAngle = rad(170); // radians
 
 	//
 	// internals
@@ -49,7 +54,7 @@ var PointerLockControls = function ( camera, domElement ) {
 
 		euler.x = Math.max( PI_2 - scope.maxPolarAngle, Math.min( PI_2 - scope.minPolarAngle, euler.x ) );
 
-		camera.quaternion.setFromEuler( euler );
+		camera.rotation.copy( euler );
 
 		scope.dispatchEvent( changeEvent );
 

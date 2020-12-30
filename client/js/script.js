@@ -122,7 +122,7 @@ initScene = function() {
 	)
 
 	scene.add(testBox2);
-	testBox2.position.set(-100,-10,0)
+	testBox2.position.set(-100,0,0)
 	testBox2.rotation.set(0,0,rad(45))
 	let light = new THREE.HemisphereLight(0xffffff, 0x000000, 1);
 	scene.add(light)
@@ -185,14 +185,15 @@ render = function() {
 
 	let prevPos = bboxTest.position;
 	bboxTest.position.add(playerVel.clone().multiplyScalar(delta));
-	bboxTest.intersectsBox(ground);
 	//ground.
+	let tv = new THREE.Vector3();
 	objs.forEach((object)=>{
 		//if(player.position.distanceTo(object.position) <= playerVel){
 
 		//}
 		//console.log(object)
-		if(bboxTest.intersectsBox(object)){
+		let collisionInfo = bboxTest.intersectsBox(object);
+		if(collisionInfo){
 			//let vA = new THREE.Vector3();
 			//let vB = new THREE.Vector3();
 			//let vC = new THREE.Vector3();
@@ -224,7 +225,11 @@ render = function() {
 	bboxTest.position.copy(prevPos.add(playerVel.clone().multiplyScalar(delta)));
 
 	player.position.copy(bboxTest.position);
-	camera.position.copy(player.position);
+	camera.position.copy(player.position.clone().sub(camLook.clone().multiplyScalar(-20)));
+	//console.log(camera.rotation)
+
+	player.rotation.set(0,camera.rotation.y,0)
+	//console.log(camera.rotation.y == player.rotation.y)
 };
 
 window.onload = initScene();

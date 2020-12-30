@@ -57,7 +57,7 @@ class BoundingBox{
 		let unit = [this.right,this.up,this.look,bx,by,bz];
 		let last3 = 0
 		let axes = 0;
-
+		let mtvs = [];
 		for(let i = 0; i < 15; i++){
 			//loop runs 15 times, only need to make it pick which axis to check collisions on
 			if(i < 6){
@@ -72,16 +72,23 @@ class BoundingBox{
 				l = new THREE.Vector3();
 				l.crossVectors(a,b);
 			}
-
-			if(abs(t.dot(l)) > abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 
-			abs(bx.clone().multiplyScalar(bw).dot(l)) + abs(by.clone().multiplyScalar(bh).dot(l)) + abs(bz.clone().multiplyScalar(bd).dot(l)))
+			let dist = abs(t.dot(l))
+			let axes = abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 
+			abs(bx.clone().multiplyScalar(bw).dot(l)) + abs(by.clone().multiplyScalar(bh).dot(l)) + abs(bz.clone().multiplyScalar(bd).dot(l));
+			if(dist > axes)
 			{
 				return false;	
+			}else{
+				mtvs.push(l.multiplyScalar(axes-dist))
 			}
 			
 		}
+		let mtv = new THREE.Vector3();
+		for(let i = 0; i<mtvs.length;i++){
+			if(mtvs[i].length>mtv.length) mtv = mtvs[i];
+		}
 		//console.log('collision', t.dot(this.up));
-		return true;
+		return {mtv: mtv};
 		
 
 	}
