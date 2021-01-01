@@ -25,11 +25,10 @@ class BoundingBox{
 	
 		this.position = this.object.position;
 
-		/*let normMat = this.object.normalMatrix
+		let normMat = this.object.matrix.elements;
 		this.right = new THREE.Vector3(normMat[0],normMat[1],normMat[2]);
-		this.up = new THREE.Vector3(normMat[3],normMat[4],normMat[5]);
-		this.look = new THREE.Vector3(normMat[6],normMat[7],normMat[8]);
-		console.log(this.right);*/
+		this.up = new THREE.Vector3(normMat[4],normMat[5],normMat[6]);
+		this.look = new THREE.Vector3(normMat[8],normMat[9],normMat[10]);
 
 		this.width = params.width;
 		this.height = params.height;
@@ -69,8 +68,12 @@ class BoundingBox{
 				let a = unit[(last3 - 6)/3].clone()
 				//console.log((last3 - 6)/3);
 				let b = unit[(i-last3) + 3].clone()
-				l = new THREE.Vector3();
-				l.crossVectors(a,b);
+				if(a.normalize().equals(b.normalize())){
+					l = new THREE.Vector3();
+					l.crossVectors(a,b).normalize();
+					break;
+				}
+				l = a;
 			}
 			let dist = abs(t.dot(l))
 			let axes = abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 
@@ -83,12 +86,15 @@ class BoundingBox{
 			}
 			
 		}
-		let mtv = new THREE.Vector3();
-		for(let i = 0; i<mtvs.length;i++){
-			if(mtvs[i].length>mtv.length) mtv = mtvs[i];
+		let mtv = mtvs[0];
+		//console.log(mtvs)
+		for(let i = 1; i<mtvs.length-1;i++){
+			if(mtvs[i].length()<mtv.length()) mtv = mtvs[i];
 		}
 		//console.log('collision', t.dot(this.up));
-		return {mtv: mtv};
+		//console.log(box.name)
+		//if(box.name == 'ground') console.log(mtvs);
+		return {mtv: mtv, axis: mtv.clone().normalize()};
 		
 
 	}

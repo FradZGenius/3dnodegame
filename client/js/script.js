@@ -64,6 +64,21 @@ onKeyUp = function(evnt){
 	}
 }
 
+var dragging = false;
+
+onMouseDown = function(evnt){
+	if(evnt.button == 2){
+		dragging = true;
+	}
+}
+
+onMouseUp = function(evnt){
+	if(evnt.button == 2){
+		dragging = false;
+		console.log('this is working')
+	}
+}
+
 initScene = function() {
 	raycaster = new THREE.Raycaster();
 	
@@ -108,29 +123,27 @@ initScene = function() {
 			new THREE.BoxBufferGeometry(500,5,50),
 			new THREE.MeshToonMaterial({ color: 0xffffff })
 	);
-	ground.name = "bruh";
+	ground.name = "ground";
 	scene.add(ground);
 
 	groundBox.setFromObject(ground);
 	ground.position.set(0,0,0)
-	ground.rotation.set(rad(180),0,0)
+	//ground.rotation.set(rad(180),0,0)
 	
 	
 	testBox2 = new THREE.Mesh(
 		new THREE.BoxBufferGeometry(10,10,10),
 		new THREE.MeshToonMaterial({color: 0xff00ff})
 	)
+	
+	testBox2.name = 'Box2';
 
 	scene.add(testBox2);
 	testBox2.position.set(-100,0,0)
 	testBox2.rotation.set(0,0,rad(45))
 	let light = new THREE.HemisphereLight(0xffffff, 0x000000, 1);
 	scene.add(light)
-	//console.log()
-
-    //scene.add(groundBox);
-
-    requestAnimationFrame( render );
+  requestAnimationFrame( render );
 	objs.push(ground, testBox2)
 };
 
@@ -143,6 +156,8 @@ initScene = function() {
 document.addEventListener('keydown',onKeydown);
 document.addEventListener('keyup',onKeyUp);
 
+document.addEventListener('mousedown', onMouseDown);
+document.addEventListener('mouseup', onMouseUp);
 
 render = function() {
 	//controls.lock();
@@ -165,7 +180,6 @@ render = function() {
 			mult*=5;
 		}
 		velAdd.add(camLook.clone().multiplyScalar(mult));
-		console.log(keysDown)
 	}
 	if(keysDown['s']){
 		velAdd.add(camLook.clone().multiplyScalar(speed));
@@ -177,59 +191,49 @@ render = function() {
 		velAdd.add(camRight.clone().multiplyScalar(speed));
 	}
 
+	//console.log(controls.isLocked);
 	velAdd.multiplyScalar(delta);
 	playerVel.sub(new THREE.Vector3(playerVel.x, 0 ,playerVel.z).multiplyScalar(delta*7));
 	playerVel.add(velAdd)
 
 	bboxTest.updateValues();
 
-	let prevPos = bboxTest.position;
+	//let prevPos = bboxTest.position.clone();
 	bboxTest.position.add(playerVel.clone().multiplyScalar(delta));
-	//ground.
-	let tv = new THREE.Vector3();
+	//console.log(playerVel)
+	let push = new THREE.Vector3();
 	objs.forEach((object)=>{
-		//if(player.position.distanceTo(object.position) <= playerVel){
-
-		//}
-		//console.log(object)
 		let collisionInfo = bboxTest.intersectsBox(object);
 		if(collisionInfo){
-			//let vA = new THREE.Vector3();
-			//let vB = new THREE.Vector3();
-			//let vC = new THREE.Vector3();
-			//let vD = new THREE.Vector3();
 
 
 			//to - from
 			let gbCenter = object.position.clone();
 
 			raycaster.set(player.position, (gbCenter.sub(player.position).normalize()));
-			//console.log(testCaster.intersectObject(ground)[0].face.normal);
 			let intersect = raycaster.intersectObject(object)[0];
 			let face = intersect.face;
-			//console.log(intersect)
 
 			let faceNorm = face.normal;
 			faceNorm.transformDirection(object.matrixWorld);
 			let proj = playerVel.clone().projectOnPlane(faceNorm);
-
-
-
-			//console.log(face);
-			playerVel.copy(proj);
-			
+			//console.log(collisionInfo.mtv)
+			push.add(collisionInfo.mtv);
+			//if(object.name == 'ground') console.log(collisionInfo.mtv);
+			//bboxTest.position.add(collisionInfo.mtv)
+			//console.log(bboxTest.position.clone().sub(collisionInfo.mtv))
+			//console.log(collisionInfo.mtv)
+			//playerVel.copy(proj);			
 		}
 		
 	});
 
-	bboxTest.position.copy(prevPos.add(playerVel.clone().multiplyScalar(delta)));
-
+	//bboxTest.position.copy(prevPos.add(playerVel.clone().multiplyScalar(delta).add(push)));
+	bboxTest.position.add(push)
 	player.position.copy(bboxTest.position);
 	camera.position.copy(player.position.clone().sub(camLook.clone().multiplyScalar(-20)));
-	//console.log(camera.rotation)
 
-	player.rotation.set(0,camera.rotation.y,0)
-	//console.log(camera.rotation.y == player.rotation.y)
+	if(!dragging) player.rotation.set(0,camera.rotation.y,0);
 };
 
 window.onload = initScene();
