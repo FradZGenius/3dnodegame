@@ -1,4 +1,15 @@
+var noOp = function(a){return a;};
+
 var abs = Math.abs;
+
+isNegative = function(v){
+	let a = v.x+v.y+v.z;
+	return (a>=0) ? false : true;
+}
+
+makePositive = function(v){
+	return new THREE.Vector3(Math.abs(v.x),Math.abs(v.y),Math.abs(v.z)).normalize();
+}
 
 class BoundingBox{
 	constructor(object){
@@ -37,7 +48,6 @@ class BoundingBox{
 
 	intersectsBox(box){
 		//Oh boy separating axis theorum
-		//console.log(box);
 		let boxNorms = box.matrix.elements;
 		let bx = new THREE.Vector3(boxNorms[0],boxNorms[1],boxNorms[2]);
 		let by = new THREE.Vector3(boxNorms[4],boxNorms[5],boxNorms[6]);
@@ -55,8 +65,9 @@ class BoundingBox{
 		
 		let unit = [this.right,this.up,this.look,bx,by,bz];
 		let last3 = 0
-		let axes = 0;
 		let mtvs = [];
+		//console.log(unit, box.name)
+		///-if(box.name == 'ground') console.log(unit);
 		for(let i = 0; i < 15; i++){
 			//loop runs 15 times, only need to make it pick which axis to check collisions on
 			if(i < 6){
@@ -75,55 +86,32 @@ class BoundingBox{
 				}
 				l = a;
 			}
-			let dist = abs(t.dot(l))
+			//if(box.name == 'ground') console.log(l, i);
+			let dist = t.dot(l);
 			let axes = abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 
 			abs(bx.clone().multiplyScalar(bw).dot(l)) + abs(by.clone().multiplyScalar(bh).dot(l)) + abs(bz.clone().multiplyScalar(bd).dot(l));
-			if(dist > axes)
+			if(abs(dist) > axes)
 			{
 				return false;	
 			}else{
-				mtvs.push(l.multiplyScalar(axes-dist))
+				//console.log(isNegative(l))
+				let overlap = (dist < 0) ? axes + dist : dist - axes;
+				//let overlap = (dist < 0) ?  axes + dist : axes - dist;
+				//if(i==4) console.log(dist);
+				mtvs.push(l.multiplyScalar(overlap))
 			}
+			
 			
 		}
 		let mtv = mtvs[0];
-		//console.log(mtvs)
 		for(let i = 1; i<mtvs.length-1;i++){
-			if(mtvs[i].length()<mtv.length()) mtv = mtvs[i];
+			if(mtvs[i].lengthSq()<mtv.lengthSq()) {
+				mtv = mtvs[i];
+			}
 		}
-		//console.log('collision', t.dot(this.up));
-		//console.log(box.name)
-		//if(box.name == 'ground') console.log(mtvs);
+		console.log('collision')
 		return {mtv: mtv, axis: mtv.clone().normalize()};
 		
 
 	}
-//|Proj ( T )| > |Proj ( WA*Ax )| + |Proj ( HA*Ay )| + |Proj( DA*Az )|
-//+ |Proj ( WB*Bx )| + |Proj( HB*By )| + |Proj( DB*Bz )|
-
-//15 total cases, L represents the axis
-/*
-L = Ax
-L = Ay
-L = Az
-L = Bx
-L = By
-L = Bz
-L = Ax X Bx
-L = Ax X By
-L = Ax X Bz
-L = Ay X Bx
-L = Ay X By
-L = Ay X Bz
-L = Az X Bx
-L = Az X By
-L = Az X Bz
-
-The separating plane spans the axes, the axis is 
-perpendicular to the plane, so you can just cross
-the two axes to get the separating axis.
-
-B must be a unit vector in order for the dot product
-to be equal to the magnitude projection
-*/
 }

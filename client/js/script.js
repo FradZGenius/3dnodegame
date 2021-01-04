@@ -75,7 +75,6 @@ onMouseDown = function(evnt){
 onMouseUp = function(evnt){
 	if(evnt.button == 2){
 		dragging = false;
-		console.log('this is working')
 	}
 }
 
@@ -108,7 +107,7 @@ initScene = function() {
 	// Box
 	player = new THREE.Mesh(
 			new THREE.BoxBufferGeometry( 10, 10, 10 ),
-			new THREE.MeshBasicMaterial({ color: 0xff0000 })
+			new THREE.MeshToonMaterial({ color: 0xff0000 })
 	);
 	scene.add( player );
 	
@@ -121,14 +120,15 @@ initScene = function() {
 
 	ground = new THREE.Mesh(
 			new THREE.BoxBufferGeometry(500,5,50),
-			new THREE.MeshToonMaterial({ color: 0xffffff })
+			new THREE.MeshToonMaterial({ color: 0x00ff00 })
 	);
 	ground.name = "ground";
+	//ground.visible = false;
 	scene.add(ground);
 
 	groundBox.setFromObject(ground);
 	ground.position.set(0,0,0)
-	//ground.rotation.set(rad(180),0,0)
+	ground.rotation.set(rad(45),0,0)
 	
 	
 	testBox2 = new THREE.Mesh(
@@ -140,10 +140,13 @@ initScene = function() {
 
 	scene.add(testBox2);
 	testBox2.position.set(-100,0,0)
-	testBox2.rotation.set(0,0,rad(45))
+	testBox2.rotation.set(0,0,rad(-45))
 	let light = new THREE.HemisphereLight(0xffffff, 0x000000, 1);
 	scene.add(light)
-  requestAnimationFrame( render );
+	requestAnimationFrame( render );
+	let light2 = new THREE.PointLight(0xffffff, 1,50)
+	light2.position.set(0,40,0);
+	scene.add(light2)
 	objs.push(ground, testBox2)
 };
 
@@ -162,9 +165,15 @@ document.addEventListener('mouseup', onMouseUp);
 render = function() {
 	//controls.lock();
 	//camera.lookAt( player.position );
+	//ground.rotation.set(ground.rotation.x + rad(.05), ground.rotation.y,ground.rotation.z)
 	let delta = clock.getDelta();
 	let camLook = new THREE.Vector3(camera.matrix.elements[8],0,camera.matrix.elements[10]).normalize();
 	let camRight = new THREE.Vector3(camera.matrix.elements[0],camera.matrix.elements[1],camera.matrix.elements[2]);
+	if(!dragging) player.rotation.set(0,camera.rotation.y,0);
+
+	let playerMat = player.matrix.elements;
+	let playerLook = new THREE.Vector3(playerMat[8], 0, playerMat[10]);
+	let playerRight = new THREE.Vector3(playerMat[0],playerMat[1],playerMat[2]);
 
 	raycaster.setFromCamera(mouse,camera);
 
@@ -179,19 +188,18 @@ render = function() {
 		if(sprinting){
 			mult*=5;
 		}
-		velAdd.add(camLook.clone().multiplyScalar(mult));
+		velAdd.add(playerLook.clone().multiplyScalar(mult));
 	}
 	if(keysDown['s']){
-		velAdd.add(camLook.clone().multiplyScalar(speed));
+		velAdd.add(playerLook.clone().multiplyScalar(speed));
 	}
 	if(keysDown['a']){
-		velAdd.add(camRight.clone().multiplyScalar(-speed));
+		velAdd.add(playerRight.clone().multiplyScalar(-speed));
 	}
 	if(keysDown['d']){
-		velAdd.add(camRight.clone().multiplyScalar(speed));
+		velAdd.add(playerRight.clone().multiplyScalar(speed));
 	}
 
-	//console.log(controls.isLocked);
 	velAdd.multiplyScalar(delta);
 	playerVel.sub(new THREE.Vector3(playerVel.x, 0 ,playerVel.z).multiplyScalar(delta*7));
 	playerVel.add(velAdd)
@@ -200,7 +208,6 @@ render = function() {
 
 	//let prevPos = bboxTest.position.clone();
 	bboxTest.position.add(playerVel.clone().multiplyScalar(delta));
-	//console.log(playerVel)
 	let push = new THREE.Vector3();
 	objs.forEach((object)=>{
 		let collisionInfo = bboxTest.intersectsBox(object);
@@ -216,14 +223,12 @@ render = function() {
 
 			let faceNorm = face.normal;
 			faceNorm.transformDirection(object.matrixWorld);
-			let proj = playerVel.clone().projectOnPlane(faceNorm);
-			//console.log(collisionInfo.mtv)
+			let proj = playerVel.clone().projectOnPlane(collisionInfo.axis);
+			console.log(collisionInfo.axis)
 			push.add(collisionInfo.mtv);
-			//if(object.name == 'ground') console.log(collisionInfo.mtv);
-			//bboxTest.position.add(collisionInfo.mtv)
-			//console.log(bboxTest.position.clone().sub(collisionInfo.mtv))
 			//console.log(collisionInfo.mtv)
-			//playerVel.copy(proj);			
+			//bboxTest.position.add(collisionInfo.mtv)
+			playerVel.copy(proj);			
 		}
 		
 	});
@@ -233,7 +238,6 @@ render = function() {
 	player.position.copy(bboxTest.position);
 	camera.position.copy(player.position.clone().sub(camLook.clone().multiplyScalar(-20)));
 
-	if(!dragging) player.rotation.set(0,camera.rotation.y,0);
 };
 
 window.onload = initScene();
