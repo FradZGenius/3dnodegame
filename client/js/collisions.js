@@ -20,7 +20,7 @@ class BoundingBox{
 		this.position = object.position;
 
 		//get matrix of mesh to do stuff
-		let normMat = object.matrix.elements;
+		let normMat = object.matrixWorld.elements;
 		this.right = new THREE.Vector3(normMat[0],normMat[1],normMat[2]);
 		this.up = new THREE.Vector3(normMat[4],normMat[5],normMat[6]);
 		this.look = new THREE.Vector3(normMat[8],normMat[9],normMat[10]);
@@ -36,7 +36,7 @@ class BoundingBox{
 	
 		this.position = this.object.position;
 
-		let normMat = this.object.matrix.elements;
+		let normMat = this.object.matrixWorld.elements;
 		this.right = new THREE.Vector3(normMat[0],normMat[1],normMat[2]);
 		this.up = new THREE.Vector3(normMat[4],normMat[5],normMat[6]);
 		this.look = new THREE.Vector3(normMat[8],normMat[9],normMat[10]);
@@ -48,7 +48,7 @@ class BoundingBox{
 
 	intersectsBox(box){
 		//Oh boy separating axis theorum
-		let boxNorms = box.matrix.elements;
+		let boxNorms = box.matrixWorld.elements;
 		let bx = new THREE.Vector3(boxNorms[0],boxNorms[1],boxNorms[2]);
 		let by = new THREE.Vector3(boxNorms[4],boxNorms[5],boxNorms[6]);
 		//console.log(this.object.matrix.elements)
@@ -63,14 +63,30 @@ class BoundingBox{
 		let l = this.right.clone();
 		let t = box.position.clone().sub(this.position);
 		
-		let unit = [this.right,this.up,this.look,bx,by,bz];
+		let unit = [
+			this.right,
+			this.up,
+			this.look,
+			bx,
+			by,
+			bz,
+			this.right.clone().cross(bx),
+			this.right.clone().cross(by),
+			this.right.clone().cross(bz),
+			this.up.clone().cross(bx),
+			this.up.clone().cross(by),
+			this.up.clone().cross(bz),
+			this.look.clone().cross(bx),
+			this.look.clone().cross(by),
+			this.look.clone().cross(bz),
+		];
 		let last3 = 0
 		let mtvs = [];
 		//console.log(unit, box.name)
-		///-if(box.name == 'ground') console.log(unit);
-		for(let i = 0; i < 15; i++){
+		//if(box.name == 'ground') socket.emit('debug',unit[1]);
+		for(let i = 0; i < unit.length; i++){
 			//loop runs 15 times, only need to make it pick which axis to check collisions on
-			if(i < 6){
+			/*if(i < 6){
 				l = unit[i].clone();
 			}else{
 				if(i%3 == 0){
@@ -85,16 +101,17 @@ class BoundingBox{
 					break;
 				}
 				l = a;
-			}
+			}*/
+			l = unit[i]
 			//if(box.name == 'ground') console.log(l, i);
-			let dist = t.dot(l);
+			let dist = t.clone().dot(l);
 			let axes = abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 
 			abs(bx.clone().multiplyScalar(bw).dot(l)) + abs(by.clone().multiplyScalar(bh).dot(l)) + abs(bz.clone().multiplyScalar(bd).dot(l));
+			//if(box.name == 'ground') socket.emit('debug', l);
 			if(abs(dist) > axes)
 			{
 				return false;	
 			}else{
-				//console.log(isNegative(l))
 				let overlap = (dist < 0) ? axes + dist : dist - axes;
 				//let overlap = (dist < 0) ?  axes + dist : axes - dist;
 				//if(i==4) console.log(dist);
@@ -109,7 +126,7 @@ class BoundingBox{
 				mtv = mtvs[i];
 			}
 		}
-		console.log('collision')
+		//socket.emit('debug',unit)
 		return {mtv: mtv, axis: mtv.clone().normalize()};
 		
 

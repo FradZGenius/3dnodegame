@@ -14,7 +14,7 @@ let testAxis = new THREE.Vector3(.707,.707,0);
 
 var clock = new THREE.Clock();
 
-var gravity = 100
+var gravity = 50
 var speed = 100;
 
 function rad(degrees)
@@ -128,7 +128,7 @@ initScene = function() {
 
 	groundBox.setFromObject(ground);
 	ground.position.set(0,0,0)
-	ground.rotation.set(rad(45),0,0)
+	ground.rotation.set(rad(45),0,rad(45))
 	
 	
 	testBox2 = new THREE.Mesh(
@@ -149,12 +149,7 @@ initScene = function() {
 	scene.add(light2)
 	objs.push(ground, testBox2)
 };
-
-//leading bounding box that extends in direction
-//of player's velocity, detects collisions
-//raycast from player to collision to see what face
-//take other 2 vectors that are not equal
-//to the normal of the face to 
+ 
 
 document.addEventListener('keydown',onKeydown);
 document.addEventListener('keyup',onKeyUp);
@@ -237,7 +232,7 @@ render = function() {
 	bboxTest.position.add(push)
 	player.position.copy(bboxTest.position);
 	camera.position.copy(player.position.clone().sub(camLook.clone().multiplyScalar(-20)));
-
+	if(player.position.y < -200) player.position.set(0,100,0);
 };
 
-window.onload = initScene();
+window.onload = initScene(); 
