@@ -14,7 +14,7 @@ let testAxis = new THREE.Vector3(.707,.707,0);
 
 var clock = new THREE.Clock();
 
-var gravity = 50
+var gravity = 100;
 var speed = 100;
 
 function rad(degrees)
@@ -128,7 +128,7 @@ initScene = function() {
 
 	groundBox.setFromObject(ground);
 	ground.position.set(0,0,0)
-	ground.rotation.set(rad(45),0,rad(45))
+	ground.rotation.set(rad(45),0,rad(0))
 	
 	
 	testBox2 = new THREE.Mesh(
@@ -160,7 +160,7 @@ document.addEventListener('mouseup', onMouseUp);
 render = function() {
 	//controls.lock();
 	//camera.lookAt( player.position );
-	//ground.rotation.set(ground.rotation.x + rad(.05), ground.rotation.y,ground.rotation.z)
+	ground.rotation.set(ground.rotation.x + rad(.05), ground.rotation.y,ground.rotation.z)
 	let delta = clock.getDelta();
 	let camLook = new THREE.Vector3(camera.matrix.elements[8],0,camera.matrix.elements[10]).normalize();
 	let camRight = new THREE.Vector3(camera.matrix.elements[0],camera.matrix.elements[1],camera.matrix.elements[2]);
