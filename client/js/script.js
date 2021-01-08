@@ -232,7 +232,7 @@ render = function() {
 	bboxTest.position.add(push)
 	player.position.copy(bboxTest.position);
 	camera.position.copy(player.position.clone().sub(camLook.clone().multiplyScalar(-20)));
-	if(player.position.y < -200) player.position.set(0,100,0);
+	if(player.position.y < -200) {player.position.set(0,100,0); playerVel.set(0,0,0);}
 };
 
 window.onload = initScene(); 
