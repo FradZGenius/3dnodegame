@@ -70,15 +70,15 @@ class BoundingBox{
 			bx,
 			by,
 			bz,
-			this.right.clone().cross(bx),
-			this.right.clone().cross(by),
-			this.right.clone().cross(bz),
-			this.up.clone().cross(bx),
-			this.up.clone().cross(by),
-			this.up.clone().cross(bz),
-			this.look.clone().cross(bx),
-			this.look.clone().cross(by),
-			this.look.clone().cross(bz),
+			this.right.clone().cross(bx).normalize(),
+			this.right.clone().cross(by).normalize(),
+			this.right.clone().cross(bz).normalize(),
+			this.up.clone().cross(bx).normalize(),
+			this.up.clone().cross(by).normalize(),
+			this.up.clone().cross(bz).normalize(),
+			this.look.clone().cross(bx).normalize(),
+			this.look.clone().cross(by).normalize(),
+			this.look.clone().cross(bz).normalize(),
 		];
 		let last3 = 0
 		let mtvs = [];
@@ -102,7 +102,7 @@ class BoundingBox{
 				}
 				l = a;
 			}*/
-			l = unit[i]
+			l = unit[i].clone();
 			//if(box.name == 'ground') console.log(l, i);
 			let dist = t.clone().dot(l);
 			let axes = abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 

@@ -1,0 +1,280 @@
+[1mdiff --git a/client/Vector2d.as b/client/Vector2d.as[m
+[1mdeleted file mode 100644[m
+[1mindex 3afb10b..0000000[m
+[1m--- a/client/Vector2d.as[m
+[1m+++ /dev/null[m
+[36m@@ -1,235 +0,0 @@[m
+[31m-package com.wordpress.kahshiu.utils [m
+[31m-{[m
+[31m-	/**[m
+[31m-	 * ...[m
+[31m-	 * @author Shiu[m
+[31m-	 */[m
+[31m-	public class Vector2d[m
+[31m-	{[m
+[31m-		private var _x:Number, _y:Number;[m
+[31m-		[m
+[31m-		/**** Class properties ****/[m
+[31m-		public function get x():Number {[m
+[31m-			return _x;[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function set x(value:Number):void {[m
+[31m-			_x = value;[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function get y():Number {[m
+[31m-			return _y;[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function set y(value:Number):void {[m
+[31m-			_y = value;[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function get magnitude():Number {[m
+[31m-			return Math2.Pythagoras(_x, _y);[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function set magnitude(value:Number):void {[m
+[31m-			var curr_angle:Number = angle;[m
+[31m-			_x = value * Math.cos(curr_angle);[m
+[31m-			_y = value * Math.sin(curr_angle);[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function get angle():Number {[m
+[31m-			return Math.atan2(_y, _x);[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function set angle(value:Number):void {[m
+[31m-			var current_magnitude:Number = magnitude;[m
+[31m-			_x = current_magnitude * Math.cos(value);[m
+[31m-			_y = current_magnitude * Math.sin(value);[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function get normR():Vector2d {[m
+[31m-			return new Vector2d(-1 * this._y, this._x);[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function get normL():Vector2d {[m
+[31m-			return new Vector2d(this._y, -1 * this._x);[m
+[31m-		}[m
+[31m-		[m
+[31m-		public function get unitVector():Vector2d {[m
+[31m-			return new Vector2d(_x / magnitude, _y / magnitude);[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**** Static functions ****/[m
+[31m-		/**[m
+[31m-		 * Performs operation A+B[m
+[31m-		 * @param	A	Vector2d to add[m
+[31m-		 * @param	B	Vector2d[m
+[31m-		 * @return	A+B[m
+[31m-		 */[m
+[31m-		public static function add(A:Vector2d, B:Vector2d):Vector2d {[m
+[31m-			return new Vector2d(A.x + B.x, A.x + B.y);[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Performs operation A-B[m
+[31m-		 * @param	A	Vector2d to minus[m
+[31m-		 * @param	B	Vector2d[m
+[31m-		 * @return	A-B[m
+[31m-		 */[m
+[31m-		public static function minus(A:Vector2d, B:Vector2d):Vector2d {[m
+[31m-			return new Vector2d(A.x - B.x, A.x - B.y);[m
+[31m-		}[m
+[31m-		[m
+[31m-		public static function rotate(A:Vector2d, angle:Number):Vector2d {[m
+[31m-			var B:Vector2d = A.clone();[m
+[31m-			B.rotate(angle);[m
+[31m-			return B;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Calculate the angle to rotate from vector A to B[m
+[31m-		 * @param	A	Vector2d to start rotating[m
+[31m-		 * @param	B	Vector2d to end[m
+[31m-		 * @return	angle from A to B[m
+[31m-		 */[m
+[31m-		public static function angleBetween(A:Vector2d, B:Vector2d):Number {[m
+[31m-			var A_unitVector:Vector2d = A.unitVector;[m
+[31m-			var B_unitVector:Vector2d = B.unitVector;[m
+[31m-			return Math.acos(A.dotProduct(B));[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Interpolate input vector to value[m
+[31m-		 * @param	A	Vector2d to interpolate[m
+[31m-		 * @param	value	interpolation value between 0 and 1[m
+[31m-		 * @return	new Vector2d interpolated[m
+[31m-		 */[m
+[31m-		public static function interpolate(A:Vector2d, value:Number):Vector2d {[m
+[31m-			[m
+[31m-			return new Vector2d(A.x * value, A.y * value);[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**** Class functions ****/[m
+[31m-		/**[m
+[31m-		 * Constructor of Vector2d[m
+[31m-		 * @param	x	horizontal length of vector[m
+[31m-		 * @param	y	vertical length of vector[m
+[31m-		 */[m
+[31m-		public function Vector2d(x:Number, y:Number) {[m
+[31m-			this._x = x;[m
+[31m-			this._y = y;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Create a copy of current vector[m
+[31m-		 * @return Copied vector[m
+[31m-		 */[m
+[31m-		public function clone ():Vector2d{[m
+[31m-			return new Vector2d(this._x, this._y);[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Trace current vector for debugging purposes[m
+[31m-		 * @param	type [m
+[31m-			* "xy"	[x, y][m
+[31m-			* "ma"	[magnitude, angle][m
+[31m-		 * @return[m
+[31m-			* an array of vector values[m
+[31m-		 */[m
+[31m-		public function trace(type:String):Vector.<Number> {[m
+[31m-			var output:Vector.<Number>;[m
+[31m-			[m
+[31m-			if (type === "xy")		output = new <Number>[this._x, this._y];[m
+[31m-			else if (type === "ma")	output = new <Number>[this.magnitude, this.angle];[m
+[31m-			[m
+[31m-			return output;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Scale current vector[m
+[31m-		 * @param	factor[m
+[31m-		 * Original is 1, half is 0.5;[m
+[31m-		 */[m
+[31m-		public function scale (factor:Number):void{[m
+[31m-			_x *= factor;[m
+[31m-			_y *= factor;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Invert current vector[m
+[31m-		 * @param	type[m
+[31m-			* input parameters: "x" or "y" or "xy"[m
+[31m-			* "x"	invert x only[m
+[31m-			* "y"	invert y only[m
+[31m-			* "xy"	invert both[m
+[31m-		 * [m
+[31m-		 */[m
+[31m-		public function invert(type:String):void{[m
+[31m-			if (type.charAt(0) == "x") 							this._x *= -1;[m
+[31m-			if (type.charAt(0) == "y" || type.charAt(1) == "y") this._y *= -1;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Add current vector by B, self+B[m
+[31m-		 * @param	B	to minus B[m
+[31m-		 */[m
+[31m-		public function add(B:Vector2d):void{[m
+[31m-			this._x += B.x;[m
+[31m-			this._y += B.y;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Minus current vector by B, self-B[m
+[31m-		 * @param	B	to minus B[m
+[31m-		 */[m
+[31m-		public function minus(B:Vector2d):void{[m
+[31m-			this._x -= B.x;[m
+[31m-			this._y -= B.y;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Rotate current vector by angle[m
+[31m-		 * @param	value	angle in radians[m
+[31m-		 */[m
+[31m-		public function rotate(value:Number):void{[m
+[31m-			_x = _x * Math.cos(value) - _y * Math.sin(value);[m
+[31m-			_y = _x * Math.sin(value) + _y * Math.cos(value);[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Calculate the dot product between current vector and B[m
+[31m-		 * @param	B	Input vector[m
+[31m-		 * @return	dot product, a scalar value[m
+[31m-		 */[m
+[31m-		public function dotProduct(B:Vector2d):Number {[m
+[31m-			return _x * B.x + _y * B.y;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Calculate the perpendicular product between current vector and B[m
+[31m-		 * @param	B	Input vector[m
+[31m-		 * @return	perpendicular product, a scalar value[m
+[31m-		 */[m
+[31m-		public function perpProduct(B:Vector2d):Number {[m
+[31m-			return _y * B.x + _x * -B.y;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Calculate cross product of current vector and input, self x B[m
+[31m-		 * @param	B	Input vector[m
+[31m-		 * @return[m
+[31m-		 */[m
+[31m-		public function crossProduct(B:Vector2d):Number {[m
+[31m-			return _x * B.y - _y * B.x;[m
+[31m-		}[m
+[31m-		[m
+[31m-		/**[m
+[31m-		 * Calculate whether current vector is equivalent to input[m
+[31m-		 * @param	B[m
+[31m-		 * @return[m
+[31m-		 */[m
+[31m-		public function equivalent(B:Vector2d):Boolean {[m
+[31m-			var diff:Number = Math.pow(4, -10);[m
+[31m-			return (_x - B.x < diff && _y - B.y < diff)[m
+[31m-		}[m
+[31m-	}[m
+[31m-[m
+[31m-}[m
+\ No newline at end of file[m
+[1mdiff --git a/client/js/collisions.js b/client/js/collisions.js[m
+[1mindex f4107cf..eb17264 100644[m
+[1m--- a/client/js/collisions.js[m
+[1m+++ b/client/js/collisions.js[m
+[36m@@ -70,15 +70,15 @@[m [mclass BoundingBox{[m
+ 			bx,[m
+ 			by,[m
+ 			bz,[m
+[31m-			this.right.clone().cross(bx),[m
+[31m-			this.right.clone().cross(by),[m
+[31m-			this.right.clone().cross(bz),[m
+[31m-			this.up.clone().cross(bx),[m
+[31m-			this.up.clone().cross(by),[m
+[31m-			this.up.clone().cross(bz),[m
+[31m-			this.look.clone().cross(bx),[m
+[31m-			this.look.clone().cross(by),[m
+[31m-			this.look.clone().cross(bz),[m
+[32m+[m			[32mthis.right.clone().cross(bx).normalize(),[m
+[32m+[m			[32mthis.right.clone().cross(by).normalize(),[m
+[32m+[m			[32mthis.right.clone().cross(bz).normalize(),[m
+[32m+[m			[32mthis.up.clone().cross(bx).normalize(),[m
+[32m+[m			[32mthis.up.clone().cross(by).normalize(),[m
+[32m+[m			[32mthis.up.clone().cross(bz).normalize(),[m
+[32m+[m			[32mthis.look.clone().cross(bx).normalize(),[m
+[32m+[m			[32mthis.look.clone().cross(by).normalize(),[m
+[32m+[m			[32mthis.look.clone().cross(bz).normalize(),[m
+ 		];[m
+ 		let last3 = 0[m
+ 		let mtvs = [];[m
+[36m@@ -102,7 +102,7 @@[m [mclass BoundingBox{[m
+ 				}[m
+ 				l = a;[m
+ 			}*/[m
+[31m-			l = unit[i][m
+[32m+[m			[32ml = unit[i].clone();[m
+ 			//if(box.name == 'ground') console.log(l, i);[m
+ 			let dist = t.clone().dot(l);[m
+ 			let axes = abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + [m
