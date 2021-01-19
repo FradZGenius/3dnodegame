@@ -11,6 +11,7 @@ makePositive = function(v){
 	return new THREE.Vector3(Math.abs(v.x),Math.abs(v.y),Math.abs(v.z)).normalize();
 }
 
+
 class BoundingBox{
 	constructor(object){
 		let params = object.geometry.parameters;
@@ -18,9 +19,12 @@ class BoundingBox{
 		this.object = object;
 
 		this.position = object.position;
+		this.oldPosition = this.position.clone();
 
 		//get matrix of mesh to do stuff
+
 		let normMat = object.matrixWorld.elements;
+		
 		this.right = new THREE.Vector3(normMat[0],normMat[1],normMat[2]);
 		this.up = new THREE.Vector3(normMat[4],normMat[5],normMat[6]);
 		this.look = new THREE.Vector3(normMat[8],normMat[9],normMat[10]);
@@ -33,8 +37,9 @@ class BoundingBox{
 
 	updateValues(){
 		let params = this.object.geometry.parameters;
-	
-		this.position = this.object.position;
+
+		this.position = this.object.position.clone();
+		this.oldPosition = this.position;
 
 		let normMat = this.object.matrixWorld.elements;
 		this.right = new THREE.Vector3(normMat[0],normMat[1],normMat[2]);
@@ -46,15 +51,48 @@ class BoundingBox{
 		this.depth = params.depth;
 	}
 
+	CCD(box){
+		let toi = -1;
+
+		let x1Old = this.oldPosition;
+		let x1 = this.position;
+
+		let x2Old = box.oldPosition;
+		let x2 = box.position;
+
+		//calculating radii
+
+		let d1 = this.oldPosition.clone().sub(this.position).normalize();
+		let d2 = box.oldPosition.clone().sub(box.position).normalize();
+
+		let b1x = this.right.clone().multiplyScalar(this.width);
+		let b1y = this.up.clone().multiplyScalar(this.height);
+		let b1z = this.look.clone().multiplyScalar(this.depth);
+
+		let b2x = box.right.clone().multiplyScalar(box.width);
+		let b2y = box.up.clone().multiplyScalar(box.height);
+		let b2z = box.look.clone().multiplyScalar(box.depth);
+
+		let r1 = b1x.dot(d1) + b1y.dot(d1) + b1z.dot(d1);
+		let r2 = b2x.dot(d2) + b2y.dot(d2) + b2z.dot(d2);
+
+		//done calculating radii
+
+		toi = (x2Old - x1Old - (r1 + r2)) / (x1 - x1Old - x2  + x2Old);
+
+		return toi;
+
+	}
+
 	intersectsBox(box){
 		//Oh boy separating axis theorum
-		let boxNorms = box.matrixWorld.elements;
+		console.log(this.CCD(box));
+		let boxNorms = box.object.matrixWorld.elements;
 		let bx = new THREE.Vector3(boxNorms[0],boxNorms[1],boxNorms[2]);
 		let by = new THREE.Vector3(boxNorms[4],boxNorms[5],boxNorms[6]);
-		//console.log(this.object.matrix.elements)
 		let bz = new THREE.Vector3(boxNorms[8],boxNorms[9],boxNorms[10]);
 
-		let bparams = box.geometry.parameters;
+		let bparams = box.object.geometry.parameters;
 
 		let bw = bparams.width/2;
 		let bh = bparams.height/2;
@@ -82,7 +120,6 @@ class BoundingBox{
 		];
 		let last3 = 0
 		let mtvs = [];
-		//console.log(unit, box.name)
 		//if(box.name == 'ground') socket.emit('debug',unit[1]);
 		for(let i = 0; i < unit.length; i++){
 			//loop runs 15 times, only need to make it pick which axis to check collisions on
@@ -93,7 +130,6 @@ class BoundingBox{
 					last3 = i;		
 				}
 				let a = unit[(last3 - 6)/3].clone()
-				//console.log((last3 - 6)/3);
 				let b = unit[(i-last3) + 3].clone()
 				if(a.normalize().equals(b.normalize())){
 					l = new THREE.Vector3();
@@ -103,8 +139,6 @@ class BoundingBox{
 				l = a;
 			}*/
 			l = unit[i].clone();
-			console.log(this.right)
-			//if(box.name == 'ground') console.log(l, i);
 			let dist = t.clone().dot(l);
 			let axes = abs(this.right.clone().multiplyScalar(this.width/2).dot(l)) + abs(this.up.clone().multiplyScalar(this.height/2).dot(l)) + abs(this.look.clone().multiplyScalar(this.depth/2).dot(l)) + 
 			abs(bx.clone().multiplyScalar(bw).dot(l)) + abs(by.clone().multiplyScalar(bh).dot(l)) + abs(bz.clone().multiplyScalar(bd).dot(l));
@@ -115,7 +149,6 @@ class BoundingBox{
 			}else{
 				let overlap = (dist < 0) ? axes + dist : dist - axes;
 				//let overlap = (dist < 0) ?  axes + dist : axes - dist;
-				//if(i==4) console.log(dist);
 				mtvs.push(l.multiplyScalar(overlap))
 			}
 			

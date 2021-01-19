@@ -7,7 +7,7 @@ var socket = io();
 var playerVel = new THREE.Vector3();
 
 var ground;
-var groundBox = new THREE.Box3();
+var groundBox;
 
 let testV = new THREE.Vector3(10,5,5);
 let testAxis = new THREE.Vector3(.707,.707,0);
@@ -26,6 +26,7 @@ function rad(degrees)
 
 var player;
 var objs = [];
+
 (
 	function () {
 		var script = document.createElement('script');
@@ -126,10 +127,10 @@ initScene = function() {
 	//ground.visible = false;
 	scene.add(ground);
 
-	groundBox.setFromObject(ground);
+	
 	ground.position.set(0,0,0)
 	ground.rotation.set(rad(45),0,rad(0))
-	
+	groundBox = new BoundingBox(ground);
 	
 	testBox2 = new THREE.Mesh(
 		new THREE.BoxBufferGeometry(10,10,10),
@@ -147,7 +148,7 @@ initScene = function() {
 	let light2 = new THREE.PointLight(0xffffff, 1,50)
 	light2.position.set(0,40,0);
 	scene.add(light2)
-	objs.push(ground, testBox2)
+	objs.push({mesh: ground, collider: groundBox}, {mesh: testBox2, collider: null})
 };
  
 
@@ -198,26 +199,28 @@ render = function() {
 	velAdd.multiplyScalar(delta);
 	playerVel.sub(new THREE.Vector3(playerVel.x, 0 ,playerVel.z).multiplyScalar(delta*7));
 	playerVel.add(velAdd)
-
+	groundBox.updateValues();
 	bboxTest.updateValues();
 
 	//let prevPos = bboxTest.position.clone();
 	bboxTest.position.add(playerVel.clone().multiplyScalar(delta));
 	let push = new THREE.Vector3();
 	objs.forEach((object)=>{
-		let collisionInfo = bboxTest.intersectsBox(object);
+		if(!object.collider) return;
+		console.log()
+		let collisionInfo = bboxTest.intersectsBox(object.collider);
 		if(collisionInfo){
 
 
 			//to - from
-			let gbCenter = object.position.clone();
+			let gbCenter = object.mesh.position.clone();
 
 			raycaster.set(player.position, (gbCenter.sub(player.position).normalize()));
-			let intersect = raycaster.intersectObject(object)[0];
+			let intersect = raycaster.intersectObject(object.mesh)[0];
 			let face = intersect.face;
 
 			let faceNorm = face.normal;
-			faceNorm.transformDirection(object.matrixWorld);
+			faceNorm.transformDirection(object.mesh.matrixWorld);
 			let proj = playerVel.clone().projectOnPlane(collisionInfo.axis);
 			console.log(collisionInfo.axis)
 			push.add(collisionInfo.mtv);
